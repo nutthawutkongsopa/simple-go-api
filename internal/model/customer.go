@@ -8,7 +8,7 @@ type CustomerSearchRequest struct {
 }
 
 type CustomerDataReponse struct {
-	ID        uuid.UUID
-	FirstName string
-	LastName  string
+	ID        uuid.UUID `json:"id"`
+	FirstName string    `json:"firstName"`
+	LastName  string    `json:"lastName"`
 }

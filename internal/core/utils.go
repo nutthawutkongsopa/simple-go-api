@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"path/filepath"
 
 	"gorm.io/gorm"
 )
@@ -29,11 +28,15 @@ func IIF[T interface{}](condition bool, consequent T, alternative T) T {
 }
 
 func GetCurrentDirectory() string {
-	ex, err := os.Executable()
+	// ex, err := os.Executable()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// exPath := filepath.Dir(ex)
+	exPath, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
-	exPath := filepath.Dir(ex)
 	return exPath
 }
 

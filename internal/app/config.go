@@ -14,7 +14,9 @@ type Environment struct {
 
 type AppSettings struct {
 	DBConnectionString string
-	RunningPort        int
+	ApplicateionURL    string
+	GINMode            string
+	AppHost            string
 }
 
 func GetEnv() (*Environment, error) {

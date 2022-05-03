@@ -19,9 +19,13 @@ func NewCustomerController(c container.Container) *CustomerController {
 	}
 }
 
+// @Tags Customer
+// @Router /customers [get]
+// @Accept json
+// @Param id  path int true "Customer ID"
 func (controller CustomerController) SearchCustomer(c *gin.Context) {
 	var service service.CustomerService
 	controller.Container.Resolve(&service)
 	result := service.Search(model.CustomerSearchRequest{})
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, model.NewAPIResultSuccess(result))
 }

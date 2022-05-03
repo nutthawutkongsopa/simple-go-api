@@ -5,6 +5,6 @@ import (
 	"github.com/golobby/container/v3"
 )
 
-func InitRoute(r gin.IRouter, container container.Container) {
-	SetCutomerRoutes(r, container)
+func InitRoute(e *gin.Engine, container container.Container) {
+	SetCutomerRoutes(e, container)
 }

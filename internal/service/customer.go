@@ -19,15 +19,18 @@ type CustomerService struct {
 	Container container.Container
 }
 
-func (sv CustomerService) Search(criteria model.CustomerSearchRequest) model.SearchResult[model.CustomerDataReponse] {
+func (sv CustomerService) Search(criteria model.CustomerSearchRequest) *model.SearchResult[model.CustomerDataReponse] {
 	var repo repository.CustomerRepository
 	err := sv.Container.Resolve(&repo)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	result := model.SearchResult[model.CustomerDataReponse]{}
 	query := FilterCustomer(*repo.GetAll(), criteria)
-	query.Count(&result.ItemCount)
+	var itemCount int64
+	query.Count(&itemCount)
+	result.ItemCount = int(itemCount)
 
 	query = core.Sort(query, criteria.SortBy, criteria.SortDirection)
 	resultData := core.MapQuery(query, func(x entity.Customer) model.CustomerDataReponse {
@@ -39,7 +42,7 @@ func (sv CustomerService) Search(criteria model.CustomerSearchRequest) model.Sea
 	})
 	result.ResultData = resultData
 
-	return result
+	return &result
 }
 
 func FilterCustomer(db gorm.DB, criteria model.CustomerSearchRequest) gorm.DB {
