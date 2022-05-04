@@ -28,10 +28,11 @@ func (sv ProductService) Search(criteria model.ProductSearchRequest) *model.Sear
 	result := model.SearchResult[model.ProductDataReponse]{}
 	query := sv.FilterProduct(*repo.GetAll(), criteria)
 	var itemCount int64
-	query.Count(&itemCount)
+	core.HandleDBError(query.Count(&itemCount))
 	result.ItemCount = int(itemCount)
 
 	query = core.Sort(query, criteria.SortBy, criteria.SortDirection)
+	query = core.Page(query, criteria.PageLength, criteria.Page)
 	resultData := core.MapQuery(query, func(x entity.Product) model.ProductDataReponse {
 		return model.ProductDataReponse{
 			ID:     x.ID,
@@ -83,7 +84,10 @@ func (sv ProductService) RemoveProduct(id uuid.UUID) {
 
 func (sv ProductService) FilterProduct(db gorm.DB, criteria model.ProductSearchRequest) gorm.DB {
 	if criteria.Name != nil && *criteria.Name != "" {
-		db = *db.Where("first_name like ? or last_name like ?", *criteria.Name, *criteria.Name)
+		db = *db.Where("name like ?", "%"+*criteria.Name+"%")
+	}
+	if criteria.Remark != nil && *criteria.Remark != "" {
+		db = *db.Where("remark like ?", "%"+*criteria.Remark+"%")
 	}
 	return db
 }

@@ -28,10 +28,11 @@ func (sv CustomerService) Search(criteria model.CustomerSearchRequest) *model.Se
 	result := model.SearchResult[model.CustomerDataReponse]{}
 	query := sv.FilterCustomer(*repo.GetAll(), criteria)
 	var itemCount int64
-	query.Count(&itemCount)
+	core.HandleDBError(query.Count(&itemCount))
 	result.ItemCount = int(itemCount)
 
 	query = core.Sort(query, criteria.SortBy, criteria.SortDirection)
+	query = core.Page(query, criteria.PageLength, criteria.Page)
 	resultData := core.MapQuery(query, func(x entity.Customer) model.CustomerDataReponse {
 		return model.CustomerDataReponse{
 			ID:        x.ID,
@@ -83,7 +84,7 @@ func (sv CustomerService) RemoveCustomer(id uuid.UUID) {
 
 func (sv CustomerService) FilterCustomer(db gorm.DB, criteria model.CustomerSearchRequest) gorm.DB {
 	if criteria.Name != nil && *criteria.Name != "" {
-		db = *db.Where("first_name like ? or last_name like ?", *criteria.Name, *criteria.Name)
+		db = *db.Where("first_name like ? or last_name like ?", "%"+*criteria.Name+"%", "%"+*criteria.Name+"%")
 	}
 	return db
 }

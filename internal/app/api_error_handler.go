@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"test-api/internal/core"
 	"test-api/internal/model"
 
@@ -21,7 +22,7 @@ func HandleAPIError(c *gin.Context, err interface{}) {
 		}
 	default:
 		{
-			c.JSON(500, model.NewAPIResultError(500, "12345", "An error occurred", ""))
+			c.JSON(500, model.NewAPIResultError(500, "12345", "An error occurred", fmt.Sprintln(err)))
 		}
 	}
 }

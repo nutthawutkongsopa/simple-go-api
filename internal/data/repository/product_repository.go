@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"test-api/internal/core"
 	"test-api/internal/data/entity"
 
 	"github.com/google/uuid"
@@ -19,7 +20,7 @@ func NewProductRepository(db gorm.DB) *ProductRepository {
 
 func (r *ProductRepository) Get(id uuid.UUID) *entity.Product {
 	var result entity.Product
-	r.DB.Table("product").Find(&result, id)
+	core.HandleDBError(r.DB.Table("product").Find(&result, id))
 	return &result
 }
 
@@ -28,9 +29,9 @@ func (r *ProductRepository) GetAll() *gorm.DB {
 }
 
 func (r *ProductRepository) Save(e entity.Product) {
-	r.DB.Table("product").Save(e)
+	core.HandleDBError(r.DB.Table("product").Save(e))
 }
 
 func (r *ProductRepository) Remove(e entity.Product) {
-	r.DB.Table("product").Delete(&e)
+	core.HandleDBError(r.DB.Table("product").Delete(&e))
 }
