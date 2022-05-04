@@ -5,6 +5,7 @@ import (
 )
 
 type Customer struct {
+	EntityBase
 	ID        uuid.UUID `gorm:"primaryKey"`
 	FirstName string
 	LastName  string

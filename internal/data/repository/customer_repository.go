@@ -26,3 +26,11 @@ func (r *CustomerRepository) Get(id uuid.UUID) *entity.Customer {
 func (r *CustomerRepository) GetAll() *gorm.DB {
 	return r.DB.Table("customer")
 }
+
+func (r *CustomerRepository) Save(e entity.Customer) {
+	r.DB.Table("customer").Save(e)
+}
+
+func (r *CustomerRepository) Remove(e entity.Customer) {
+	r.DB.Table("customer").Delete(&e)
+}

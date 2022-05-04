@@ -2,28 +2,27 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"test-api/internal/app"
-	"test-api/internal/model"
-	"test-api/internal/service"
+	"time"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "p@ssw0rd"
-	dbname   = "test_api_db"
-)
+// Schemes: http, https
+// Host: localhost
+// BasePath: /v1
+// Version: 0.0.1
+// License: MIT http://opensource.org/licenses/MIT
+//
+// Consumes:
+// - application/json
+// - application/xml
+//
+// Produces:
+// - application/json
+// - application/xml
+//
+//
+// swagger:meta
 
 func main() {
-	container, err := app.SetupContainer() //app.SetupContainer()
-	if err != nil {
-		log.Fatal(err)
-	}
-	var xx service.CustomerService
-	container.Resolve(&xx)
-	yy := xx.Search(model.CustomerSearchRequest{})
-	fmt.Printf(yy.ResultData[0].ID.String())
-	_ = yy
+	xx := time.Now()
+	fmt.Println(xx.String())
 }

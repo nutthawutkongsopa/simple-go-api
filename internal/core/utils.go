@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 
+	"github.com/golobby/container/v3"
 	"gorm.io/gorm"
 )
 
@@ -69,4 +70,17 @@ func MapQuery[TQuery interface{}, TResult interface{}](db gorm.DB, selector Sele
 		result = append(result, selector(item))
 	}
 	return result
+}
+
+func Resolve[TResult interface{}](c container.Container) TResult {
+	var result TResult
+	err := c.Resolve(&result)
+	if err != nil {
+		panic(err)
+	}
+	return result
+}
+
+func Ptr[T interface{}](value T) *T {
+	return &value
 }

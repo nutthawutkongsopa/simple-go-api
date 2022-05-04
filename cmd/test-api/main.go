@@ -10,6 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @title API document title
+// @version version(1.0)
+// @description Description of specifications
+// @Precautions when using termsOfService specifications
+
+// @contact.name API supporter
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name license(Mandatory)
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /
+
 func main() {
 	//defer deferring()
 	container, err := app.SetupContainer()

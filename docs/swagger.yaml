@@ -1,17 +1,126 @@
+basePath: /
+definitions:
+  model.APIResult:
+    properties:
+      data: {}
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  model.CustomerUpdateRequest:
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+    type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API supporter
+    url: http://www.swagger.io/support
+  description: Description of specifications
+  license:
+    name: license(Mandatory)
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: API document title
+  version: version(1.0)
 paths:
   /customers:
     get:
       consumes:
       - application/json
       parameters:
+      - in: query
+        name: name
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: pageLength
+        type: integer
+      - in: query
+        name: sortBy
+        type: string
+      - in: query
+        name: sortDirection
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.APIResult'
+      summary: SearchCustomer
+      tags:
+      - customer
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: data to update
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/model.CustomerUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.APIResult'
+      summary: AddCustomer
+      tags:
+      - customer
+  /customers/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
       - description: Customer ID
+        format: uuid
         in: path
         name: id
         required: true
-        type: integer
-      responses: {}
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.APIResult'
+      summary: RemoveCustomer
       tags:
-      - Customer
+      - customer
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Customer ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: data to update
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/model.CustomerUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.APIResult'
+      summary: UpdateCustomer
+      tags:
+      - customer
 swagger: "2.0"

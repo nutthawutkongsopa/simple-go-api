@@ -5,6 +5,7 @@ import (
 )
 
 type Product struct {
+	EntityBase
 	ID     uuid.UUID `gorm:"primaryKey"`
 	Name   string
 	Remark string

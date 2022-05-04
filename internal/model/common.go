@@ -1,10 +1,10 @@
 package model
 
 type CriteriaBase struct {
-	PageLength    *int    `json:"pageLength"`
-	Page          *int    `json:"page"`
-	SortBy        *string `json:"sortBy"`
-	SortDirection *string `json:"sortDirection"`
+	PageLength    *int    `json:"pageLength" form:"pageLength"`
+	Page          *int    `json:"page" form:"page"`
+	SortBy        *string `json:"sortBy" form:"sortBy"`
+	SortDirection *string `json:"sortDirection" form:"sortDirection"`
 }
 
 type SearchResult[T interface{}] struct {

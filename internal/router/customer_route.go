@@ -13,4 +13,7 @@ func SetCutomerRoutes(g gin.IRouter, container container.Container) {
 
 	r := g.Group("/customers")
 	r.GET("/", controller.SearchCustomer)
+	r.POST("/", controller.AddCustomer)
+	r.PUT("/:id", controller.UpdateCustomer)
+	r.DELETE("/:id", controller.RemoveCustomer)
 }
