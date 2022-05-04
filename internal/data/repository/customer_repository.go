@@ -8,13 +8,13 @@ import (
 )
 
 type CustomerRepository struct {
-	*RepositoryBase
+	RepositoryBase
 }
 
 func NewCustomerRepository(db gorm.DB) *CustomerRepository {
-	result := CustomerRepository{RepositoryBase: &RepositoryBase{}}
+	result := new(CustomerRepository)
 	result.DB = &db
-	return &result
+	return result
 }
 
 func (r *CustomerRepository) Get(id uuid.UUID) *entity.Customer {

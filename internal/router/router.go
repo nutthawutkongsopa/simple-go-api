@@ -6,5 +6,6 @@ import (
 )
 
 func InitRoute(e *gin.Engine, container container.Container) {
-	SetCutomerRoutes(e, container)
+	SetCustomerRoutes(e, container)
+	SetProductRoutes(e, container)
 }

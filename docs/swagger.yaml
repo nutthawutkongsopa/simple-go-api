@@ -15,6 +15,13 @@ definitions:
       lastName:
         type: string
     type: object
+  model.ProductUpdateRequest:
+    properties:
+      name:
+        type: string
+      remark:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -123,4 +130,102 @@ paths:
       summary: UpdateCustomer
       tags:
       - customer
+  /products:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: name
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: pageLength
+        type: integer
+      - in: query
+        name: remark
+        type: string
+      - in: query
+        name: sortBy
+        type: string
+      - in: query
+        name: sortDirection
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.APIResult'
+      summary: SearchProduct
+      tags:
+      - product
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: data to update
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/model.ProductUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.APIResult'
+      summary: AddProduct
+      tags:
+      - product
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Product ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.APIResult'
+      summary: RemoveProduct
+      tags:
+      - product
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Product ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: data to update
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/model.ProductUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.APIResult'
+      summary: UpdateProduct
+      tags:
+      - product
 swagger: "2.0"

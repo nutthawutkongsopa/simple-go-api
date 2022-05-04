@@ -12,19 +12,21 @@ import (
 	"gorm.io/gorm"
 )
 
-type CustomerRepository interface {
-	GetAll() *gorm.DB
-}
-
 type CustomerService struct {
 	Container container.Container
+}
+
+func NewCustomerService(container container.Container) *CustomerService {
+	sv := new(CustomerService)
+	sv.Container = container
+	return sv
 }
 
 func (sv CustomerService) Search(criteria model.CustomerSearchRequest) *model.SearchResult[model.CustomerDataReponse] {
 	repo := core.Resolve[repository.CustomerRepository](sv.Container)
 
 	result := model.SearchResult[model.CustomerDataReponse]{}
-	query := FilterCustomer(*repo.GetAll(), criteria)
+	query := sv.FilterCustomer(*repo.GetAll(), criteria)
 	var itemCount int64
 	query.Count(&itemCount)
 	result.ItemCount = int(itemCount)
@@ -79,7 +81,7 @@ func (sv CustomerService) RemoveCustomer(id uuid.UUID) {
 	})
 }
 
-func FilterCustomer(db gorm.DB, criteria model.CustomerSearchRequest) gorm.DB {
+func (sv CustomerService) FilterCustomer(db gorm.DB, criteria model.CustomerSearchRequest) gorm.DB {
 	if criteria.Name != nil && *criteria.Name != "" {
 		db = *db.Where("first_name like ? or last_name like ?", *criteria.Name, *criteria.Name)
 	}

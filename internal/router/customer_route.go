@@ -7,7 +7,7 @@ import (
 	"github.com/golobby/container/v3"
 )
 
-func SetCutomerRoutes(g gin.IRouter, container container.Container) {
+func SetCustomerRoutes(g gin.IRouter, container container.Container) {
 	var controller = new(controller.CustomerController)
 	controller.Container = container
 

@@ -73,11 +73,19 @@ func RegistRepository(container container.Container) {
 	container.Transient(func() repository.CustomerRepository {
 		return *repository.NewCustomerRepository(*db)
 	})
+	container.Transient(func() repository.ProductRepository {
+		return *repository.NewProductRepository(*db)
+	})
 }
 
 func RegistCustomService(container container.Container) {
 	container.Transient(func() service.CustomerService {
 		return service.CustomerService{
+			Container: container,
+		}
+	})
+	container.Transient(func() service.ProductService {
+		return service.ProductService{
 			Container: container,
 		}
 	})
