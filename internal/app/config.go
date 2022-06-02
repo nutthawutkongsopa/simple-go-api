@@ -44,7 +44,10 @@ func GetAppSettigs() (*AppSettings, error) {
 	if err != nil {
 		return nil, err
 	}
-	rootDir := core.GetCurrentDirectory()
+	rootDir, err := core.GetCurrentDirectory()
+	if err != nil {
+		return nil, err
+	}
 	configPath := filepath.Join(rootDir, "configs")
 	result := AppSettings{}
 	viper := viper.New()

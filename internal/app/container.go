@@ -17,11 +17,23 @@ func SetupContainer() (container.Container, error) {
 		return nil, err
 	}
 
-	RegistDBConnection(container)
+	err = RegistDBConnection(container)
 
-	RegistRepository(container)
+	if err != nil {
+		return nil, err
+	}
 
-	RegistCustomService(container)
+	err = RegistRepository(container)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = RegistCustomService(container)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return container, nil
 }
@@ -48,45 +60,54 @@ func RegistConfig(container container.Container) error {
 	return nil
 }
 
-func RegistDBConnection(container container.Container) {
+func RegistDBConnection(container container.Container) error {
 	var appsettings AppSettings
 	container.Resolve(&appsettings)
 
-	container.Singleton(func() *gorm.DB {
+	return container.Singleton(func() (*gorm.DB, error) {
 		conn := appsettings.DBConnectionString
-		db, err := gorm.Open(postgres.Open(conn))
-
-		if err != nil {
-			panic("failed to connect database")
-		}
-
-		return db
+		return gorm.Open(postgres.Open(conn))
 	})
 }
 
-func RegistRepository(container container.Container) {
+func RegistRepository(container container.Container) error {
 	var db *gorm.DB
 	err := container.Resolve(&db)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	container.Transient(func() repository.CustomerRepository {
+
+	if err = container.Transient(func() repository.CustomerRepository {
 		return *repository.NewCustomerRepository(*db)
-	})
-	container.Transient(func() repository.ProductRepository {
+	}); err != nil {
+		return err
+	}
+
+	if err = container.Transient(func() repository.ProductRepository {
 		return *repository.NewProductRepository(*db)
-	})
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func RegistCustomService(container container.Container) {
-	container.Transient(func() service.CustomerService {
+func RegistCustomService(container container.Container) error {
+	if err := container.Transient(func() service.CustomerService {
 		return service.CustomerService{
 			Container: container,
 		}
-	})
-	container.Transient(func() service.ProductService {
+	}); err != nil {
+		return err
+	}
+
+	if err := container.Transient(func() service.ProductService {
 		return service.ProductService{
 			Container: container,
 		}
-	})
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }

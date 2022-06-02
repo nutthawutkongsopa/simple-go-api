@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"test-api/internal/core"
 	"test-api/internal/model"
 	"test-api/internal/service"
 
@@ -32,9 +33,16 @@ func (controller ProductController) SearchProduct(c *gin.Context) {
 	controller.Container.Resolve(&service)
 	var criteria model.ProductSearchRequest
 	if err := c.BindQuery(&criteria); err != nil {
-		panic(err)
+		if err != nil {
+			core.HandleAPIError(c, err)
+			return
+		}
 	}
-	result := service.Search(criteria)
+	result, err := service.Search(criteria)
+	if err != nil {
+		core.HandleAPIError(c, err)
+		return
+	}
 	c.JSON(http.StatusOK, model.NewAPIResultSuccess(result))
 }
 
@@ -49,11 +57,18 @@ func (controller ProductController) AddProduct(c *gin.Context) {
 	var service service.ProductService
 	controller.Container.Resolve(&service)
 	var data model.ProductUpdateRequest
-	c.BindJSON(&data)
-	id := service.AddProduct(data)
+	if err := c.BindJSON(&data); err != nil {
+		core.HandleAPIError(c, err)
+		return
+	}
+	id, err := service.AddProduct(data)
+	if err != nil {
+		core.HandleAPIError(c, err)
+		return
+	}
 	result := struct {
 		Id uuid.UUID `json:"id"`
-	}{Id: id}
+	}{Id: *id}
 	c.JSON(http.StatusOK, model.NewAPIResultSuccess(result))
 }
 
@@ -70,7 +85,10 @@ func (controller ProductController) UpdateProduct(c *gin.Context) {
 	var service service.ProductService
 	controller.Container.Resolve(&service)
 	var data model.ProductUpdateRequest
-	c.BindJSON(&data)
+	if err := c.BindJSON(&data); err != nil {
+		core.HandleAPIError(c, err)
+		return
+	}
 	service.UpdateProduct(uuid.MustParse(id), data)
 	c.JSON(http.StatusOK, model.NewAPIResultSuccess(nil))
 }

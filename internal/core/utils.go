@@ -26,26 +26,17 @@ func IIF[T interface{}](condition bool, consequent T, alternative T) T {
 	}
 }
 
-func GetCurrentDirectory() string {
-	// ex, err := os.Executable()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// exPath := filepath.Dir(ex)
-	exPath, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	return exPath
+func GetCurrentDirectory() (string, error) {
+	return os.Getwd()
 }
 
-func Resolve[TResult interface{}](c container.Container) TResult {
+func Resolve[TResult interface{}](c container.Container) (*TResult, error) {
 	var result TResult
 	err := c.Resolve(&result)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return result
+	return &result, nil
 }
 
 func Ptr[T interface{}](value T) *T {

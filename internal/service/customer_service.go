@@ -22,8 +22,11 @@ func NewCustomerService(container container.Container) *CustomerService {
 	return sv
 }
 
-func (sv CustomerService) Search(criteria model.CustomerSearchRequest) *model.SearchResult[model.CustomerDataReponse] {
-	repo := core.Resolve[repository.CustomerRepository](sv.Container)
+func (sv CustomerService) Search(criteria model.CustomerSearchRequest) (*model.SearchResult[model.CustomerDataReponse], error) {
+	repo, err := core.Resolve[repository.CustomerRepository](sv.Container)
+	if err != nil {
+		return nil, err
+	}
 
 	result := model.SearchResult[model.CustomerDataReponse]{}
 	query := sv.FilterCustomer(*repo.GetAll(), criteria)
@@ -33,20 +36,26 @@ func (sv CustomerService) Search(criteria model.CustomerSearchRequest) *model.Se
 
 	query = core.Sort(query, criteria.SortBy, criteria.SortDirection)
 	query = core.Page(query, criteria.PageLength, criteria.Page)
-	resultData := core.MapQuery(query, func(x entity.Customer) model.CustomerDataReponse {
+	resultData, err := core.MapQuery(query, func(x entity.Customer) model.CustomerDataReponse {
 		return model.CustomerDataReponse{
 			ID:        x.ID,
 			FirstName: x.FirstName,
 			LastName:  x.LastName,
 		}
 	})
+	if err != nil {
+		return nil, err
+	}
 	result.ResultData = resultData
 
-	return &result
+	return &result, nil
 }
 
-func (sv CustomerService) AddCustomer(data model.CustomerUpdateRequest) uuid.UUID {
-	repo := core.Resolve[repository.CustomerRepository](sv.Container)
+func (sv CustomerService) AddCustomer(data model.CustomerUpdateRequest) (*uuid.UUID, error) {
+	repo, err := core.Resolve[repository.CustomerRepository](sv.Container)
+	if err != nil {
+		return nil, err
+	}
 	customer := new(entity.Customer)
 	customer.ID = uuid.New()
 	customer.FirstName = data.FirstName
@@ -57,29 +66,53 @@ func (sv CustomerService) AddCustomer(data model.CustomerUpdateRequest) uuid.UUI
 		repo.Save(*customer)
 		return nil
 	})
-	return customer.ID
+	return &customer.ID, nil
 }
 
-func (sv CustomerService) UpdateCustomer(id uuid.UUID, data model.CustomerUpdateRequest) {
-	repo := core.Resolve[repository.CustomerRepository](sv.Container)
-	customer := repo.Get(id)
+func (sv CustomerService) UpdateCustomer(id uuid.UUID, data model.CustomerUpdateRequest) error {
+	repo, err := core.Resolve[repository.CustomerRepository](sv.Container)
+	if err != nil {
+		return err
+	}
+	customer, err := repo.Get(id)
+	if err != nil {
+		return err
+	}
 	customer.FirstName = data.FirstName
 	customer.LastName = data.LastName
 	customer.UpdatedBy = core.Ptr("Testt")
 	customer.UpdatedDate = core.Ptr(time.Now())
-	repo.DB.Transaction(func(tx *gorm.DB) error {
+	err = repo.DB.Transaction(func(tx *gorm.DB) error {
 		repo.Save(*customer)
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (sv CustomerService) RemoveCustomer(id uuid.UUID) {
-	repo := core.Resolve[repository.CustomerRepository](sv.Container)
-	customer := repo.Get(id)
-	repo.DB.Transaction(func(tx *gorm.DB) error {
+func (sv CustomerService) RemoveCustomer(id uuid.UUID) error {
+	repo, err := core.Resolve[repository.CustomerRepository](sv.Container)
+	if err != nil {
+		return err
+	}
+	customer, err := repo.Get(id)
+	if err != nil {
+		return err
+	}
+	err = repo.DB.Transaction(func(tx *gorm.DB) error {
 		repo.Remove(*customer)
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (sv CustomerService) FilterCustomer(db gorm.DB, criteria model.CustomerSearchRequest) gorm.DB {

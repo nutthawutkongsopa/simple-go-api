@@ -18,20 +18,25 @@ func NewCustomerRepository(db gorm.DB) *CustomerRepository {
 	return result
 }
 
-func (r *CustomerRepository) Get(id uuid.UUID) *entity.Customer {
+func (r *CustomerRepository) Get(id uuid.UUID) (*entity.Customer, error) {
 	var result entity.Customer
-	core.HandleDBError(r.DB.Table("customer").Find(&result, id))
-	return &result
+	_, err := core.HandleDBError(r.DB.Table("customer").Find(&result, id))
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 func (r *CustomerRepository) GetAll() *gorm.DB {
 	return r.DB.Table("customer")
 }
 
-func (r *CustomerRepository) Save(e entity.Customer) {
-	core.HandleDBError(r.DB.Table("customer").Save(e))
+func (r *CustomerRepository) Save(e entity.Customer) error {
+	_, err := core.HandleDBError(r.DB.Table("customer").Save(e))
+	return err
 }
 
-func (r *CustomerRepository) Remove(e entity.Customer) {
-	core.HandleDBError(r.DB.Table("customer").Delete(&e))
+func (r *CustomerRepository) Remove(e entity.Customer) error {
+	_, err := core.HandleDBError(r.DB.Table("customer").Delete(&e))
+	return err
 }

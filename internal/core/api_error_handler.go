@@ -1,8 +1,7 @@
-package app
+package core
 
 import (
 	"fmt"
-	"test-api/internal/core"
 	"test-api/internal/model"
 
 	"github.com/gin-gonic/gin"
@@ -10,14 +9,14 @@ import (
 
 func HandleAPIError(c *gin.Context, err interface{}) {
 	switch err.(type) {
-	case *core.DataErrorException:
+	case *DataErrorException:
 		{
-			e := err.(*core.DataErrorException)
+			e := err.(*DataErrorException)
 			c.JSON(400, model.NewAPIResultError(400, *e.ErrorCode, *e.Message, *e.Details))
 		}
-	case core.DataErrorException:
+	case DataErrorException:
 		{
-			e := err.(core.DataErrorException)
+			e := err.(DataErrorException)
 			c.JSON(400, model.NewAPIResultError(400, *e.ErrorCode, *e.Message, *e.Details))
 		}
 	default:

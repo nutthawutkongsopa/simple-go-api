@@ -18,20 +18,25 @@ func NewProductRepository(db gorm.DB) *ProductRepository {
 	return result
 }
 
-func (r *ProductRepository) Get(id uuid.UUID) *entity.Product {
+func (r *ProductRepository) Get(id uuid.UUID) (*entity.Product, error) {
 	var result entity.Product
-	core.HandleDBError(r.DB.Table("product").Find(&result, id))
-	return &result
+	_, err := core.HandleDBError(r.DB.Table("product").Find(&result, id))
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 func (r *ProductRepository) GetAll() *gorm.DB {
 	return r.DB.Table("product")
 }
 
-func (r *ProductRepository) Save(e entity.Product) {
-	core.HandleDBError(r.DB.Table("product").Save(e))
+func (r *ProductRepository) Save(e entity.Product) error {
+	_, err := core.HandleDBError(r.DB.Table("product").Save(e))
+	return err
 }
 
-func (r *ProductRepository) Remove(e entity.Product) {
-	core.HandleDBError(r.DB.Table("product").Delete(&e))
+func (r *ProductRepository) Remove(e entity.Product) error {
+	_, err := core.HandleDBError(r.DB.Table("product").Delete(&e))
+	return err
 }

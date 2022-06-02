@@ -22,8 +22,11 @@ func NewProductService(container container.Container) *ProductService {
 	return sv
 }
 
-func (sv ProductService) Search(criteria model.ProductSearchRequest) *model.SearchResult[model.ProductDataReponse] {
-	repo := core.Resolve[repository.ProductRepository](sv.Container)
+func (sv ProductService) Search(criteria model.ProductSearchRequest) (*model.SearchResult[model.ProductDataReponse], error) {
+	repo, err := core.Resolve[repository.ProductRepository](sv.Container)
+	if err != nil {
+		return nil, err
+	}
 
 	result := model.SearchResult[model.ProductDataReponse]{}
 	query := sv.FilterProduct(*repo.GetAll(), criteria)
@@ -33,53 +36,84 @@ func (sv ProductService) Search(criteria model.ProductSearchRequest) *model.Sear
 
 	query = core.Sort(query, criteria.SortBy, criteria.SortDirection)
 	query = core.Page(query, criteria.PageLength, criteria.Page)
-	resultData := core.MapQuery(query, func(x entity.Product) model.ProductDataReponse {
+	resultData, err := core.MapQuery(query, func(x entity.Product) model.ProductDataReponse {
 		return model.ProductDataReponse{
 			ID:     x.ID,
 			Name:   x.Name,
 			Remark: x.Remark,
 		}
 	})
+	if err != nil {
+		return nil, err
+	}
 	result.ResultData = resultData
 
-	return &result
+	return &result, nil
 }
 
-func (sv ProductService) AddProduct(data model.ProductUpdateRequest) uuid.UUID {
-	repo := core.Resolve[repository.ProductRepository](sv.Container)
+func (sv ProductService) AddProduct(data model.ProductUpdateRequest) (*uuid.UUID, error) {
+	repo, err := core.Resolve[repository.ProductRepository](sv.Container)
+	if err != nil {
+		return nil, err
+	}
 	product := new(entity.Product)
 	product.ID = uuid.New()
 	product.Name = data.Name
 	product.Remark = data.Remark
 	product.CreatedBy = core.Ptr("Testt")
 	product.CreatedDate = core.Ptr(time.Now())
-	repo.DB.Transaction(func(tx *gorm.DB) error {
+	err = repo.DB.Transaction(func(tx *gorm.DB) error {
 		repo.Save(*product)
 		return nil
 	})
-	return product.ID
+	if err != nil {
+		return nil, err
+	}
+	return &product.ID, nil
 }
 
-func (sv ProductService) UpdateProduct(id uuid.UUID, data model.ProductUpdateRequest) {
-	repo := core.Resolve[repository.ProductRepository](sv.Container)
-	product := repo.Get(id)
+func (sv ProductService) UpdateProduct(id uuid.UUID, data model.ProductUpdateRequest) error {
+	repo, err := core.Resolve[repository.ProductRepository](sv.Container)
+	if err != nil {
+		return err
+	}
+	product, err := repo.Get(id)
+	if err != nil {
+		return err
+	}
 	product.Name = data.Name
 	product.Remark = data.Remark
 	product.UpdatedBy = core.Ptr("Testt")
 	product.UpdatedDate = core.Ptr(time.Now())
-	repo.DB.Transaction(func(tx *gorm.DB) error {
+	err = repo.DB.Transaction(func(tx *gorm.DB) error {
 		repo.Save(*product)
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (sv ProductService) RemoveProduct(id uuid.UUID) {
-	repo := core.Resolve[repository.ProductRepository](sv.Container)
-	product := repo.Get(id)
-	repo.DB.Transaction(func(tx *gorm.DB) error {
+func (sv ProductService) RemoveProduct(id uuid.UUID) error {
+	repo, err := core.Resolve[repository.ProductRepository](sv.Container)
+	if err != nil {
+		return err
+	}
+	product, err := repo.Get(id)
+	if err != nil {
+		return err
+	}
+	err = repo.DB.Transaction(func(tx *gorm.DB) error {
 		repo.Remove(*product)
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (sv ProductService) FilterProduct(db gorm.DB, criteria model.ProductSearchRequest) gorm.DB {

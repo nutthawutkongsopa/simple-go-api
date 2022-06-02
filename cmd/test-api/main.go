@@ -50,7 +50,7 @@ func main() {
 	})
 
 	e.Use(gin.CustomRecovery(func(c *gin.Context, err interface{}) {
-		app.HandleAPIError(c, err)
+		core.HandleAPIError(c, err)
 		c.Next()
 	}))
 

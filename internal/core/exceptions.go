@@ -1,6 +1,7 @@
 package core
 
 type DataErrorException struct {
+	error
 	ErrorCode *string
 	Message   *string
 	Details   *string

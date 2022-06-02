@@ -26,21 +26,24 @@ func Sort(db gorm.DB, sortBy *string, sortDirection *string) gorm.DB {
 	return db
 }
 
-func HandleDBError(db *gorm.DB) *gorm.DB {
+func HandleDBError(db *gorm.DB) (*gorm.DB, error) {
 	if db.Error != nil {
-		panic(db.Error)
+		return db, db.Error
 	}
 
-	return db
+	return db, nil
 }
 
-func MapQuery[TQuery interface{}, TResult interface{}](db gorm.DB, selector Selector[TQuery, TResult]) []TResult {
+func MapQuery[TQuery interface{}, TResult interface{}](db gorm.DB, selector Selector[TQuery, TResult]) ([]TResult, error) {
 	var result []TResult = []TResult{}
 	var items []TQuery
 
-	HandleDBError(db.Find(&items))
+	_, err := HandleDBError(db.Find(&items))
+	if err != nil {
+		return nil, err
+	}
 	for _, item := range items {
 		result = append(result, selector(item))
 	}
-	return result
+	return result, nil
 }
