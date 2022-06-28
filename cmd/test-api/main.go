@@ -32,8 +32,10 @@ func main() {
 		panic(err)
 	}
 
+	var env app.Environment
 	var settings app.AppSettings
 	container.Resolve(&settings)
+	container.Resolve(&env)
 
 	if settings.GINMode != "" {
 		gin.SetMode(settings.GINMode)
@@ -41,7 +43,9 @@ func main() {
 
 	e := gin.New()
 
-	app.InitSwagger(e, settings.AppHost)
+	if env.EnvName == "dev" {
+		app.InitSwagger(e, settings.AppHost)
+	}
 
 	e.Use(middleware.ContextAccessMiddleware)
 	core.InitSessionData(func() *gin.Context {
